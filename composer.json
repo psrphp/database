@@ -1,0 +1,14 @@
+{
+    "name": "psrphp/database",
+    "description": "psrphp database",
+    "type": "library",
+    "license": "GPL-3.0",
+    "require": {
+        "catfan/medoo": "^2.1|^1.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "PsrPHP\\Database\\": "src/"
+        }
+    }
+}
