@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace PsrPHP\Database;
 
-use Composer\InstalledVersions;
 use Medoo\Medoo;
-use ReflectionClass;
 
 /**
  * @method false|\PDOStatement query($query, $map = [])
@@ -43,11 +41,9 @@ class Db
     public function __construct(array $config = null)
     {
         if (is_null($config)) {
-            if (class_exists(InstalledVersions::class)) {
-                $config_file = dirname(dirname(dirname((new ReflectionClass(InstalledVersions::class))->getFileName()))) . '/config/database.php';
-                if (file_exists($config_file)) {
-                    $this->loadConfig(self::includeFile($config_file));
-                }
+            $config_file = dirname(__DIR__, 4) . '/config/database.php';
+            if (file_exists($config_file)) {
+                $this->loadConfig(self::requireFile($config_file));
             }
         } else {
             $this->loadConfig($config);
@@ -111,8 +107,8 @@ class Db
         }
     }
 
-    private static function includeFile(string $file)
+    private static function requireFile(string $file)
     {
-        return include $file;
+        return require $file;
     }
 }
