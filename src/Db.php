@@ -36,25 +36,19 @@ use Medoo\Medoo;
 class Db
 {
     private $master_config = [];
-    private $slave_config = [];
+    private $slaves_config = [];
 
-    public function __construct(array $config = null)
+    public function __construct(array $master_config = [], array ...$slaves_config)
     {
-        if (is_null($config)) {
-            $config_file = dirname(__DIR__, 4) . '/config/database.php';
-            if (file_exists($config_file)) {
-                $this->loadConfig(self::requireFile($config_file));
-            }
-        } else {
-            $this->loadConfig($config);
-        }
+        $this->master_config = $master_config;
+        $this->slaves_config = $slaves_config;
     }
 
     public function master(): Medoo
     {
         static $db;
         if (!$db) {
-            $db = $this->instance($this->master_config);
+            $db = $this->getInstance($this->master_config);
         }
         return $db;
     }
@@ -63,12 +57,12 @@ class Db
     {
         static $db;
         if (!$db) {
-            $db = $this->slave_config ? $this->instance(array_rand($this->slave_config)) : $this->master();
+            $db = $this->slaves_config ? $this->getInstance(array_rand($this->slaves_config)) : $this->master();
         }
         return $db;
     }
 
-    public function instance(array $config = []): Medoo
+    public function getInstance(array $config = []): Medoo
     {
         return new Medoo(array_merge([
             'database_type' => 'mysql',
@@ -95,20 +89,5 @@ class Db
         } else {
             return $this->slave()->$name(...$arguments);
         }
-    }
-
-    private function loadConfig(array $config)
-    {
-        if (isset($config['master'])) {
-            $this->master_config = $config['master'];
-        }
-        if (isset($config['slaves'])) {
-            $this->slave_config = (array) $config['slaves'];
-        }
-    }
-
-    private static function requireFile(string $file)
-    {
-        return require $file;
     }
 }
